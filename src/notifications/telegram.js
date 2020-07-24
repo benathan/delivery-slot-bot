@@ -17,16 +17,26 @@ class TelegramNotifier {
     }
   }
 
-  _sendMessage(api, chatId, msg) {
+  _sendMessage(api, chatId, msg, screenshot) {
     api.sendMessage({
       chat_id: chatId,
       text: msg,
       parse_mode: "HTML",
     });
+
+const fileOptions = {
+  // Explicitly specify the file name.
+  filename: 'screen.jpeg',
+  // Explicitly specify the MIME type.
+  contentType: 'image/jpeg',
+};
+
+//console.log(screenshot)
+    //api.sendPhoto({chatId: chatId, photo: screenshot, options: {}, fileOptions: fileOptions});
   }
 
-  async sendMessage(msg) {
-    const api = new telegram({ token: this.config.telegram_api_token });
+  async sendMessage(msg, screenshot) {
+    const api = new telegram({ token: this.config.telegram_api_token, polling: true});
     const updates = await api.getUpdates({});
     if (updates && updates.length != 0) {
       const chatIds = updates.map((update) =>
@@ -37,7 +47,7 @@ class TelegramNotifier {
       });
     }
     Object.keys(this.chatIdsCache).forEach((chatId) => {
-      this._sendMessage(api, chatId, msg);
+      this._sendMessage(api, chatId, msg, screenshot);
     });
   }
 
@@ -61,7 +71,7 @@ class TelegramNotifier {
     if (slotDates && slotDates.length != 0) {
       for (const slotDate of slotDates) {
         const msg = this.generateMessage(store, type, slotDate);
-        this.sendMessage(msg);
+        this.sendMessage(msg, slotDate.screenshot);
       }
     } else {
       this.sendMessage(`no slots`);
