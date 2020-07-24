@@ -113,7 +113,6 @@ class TelegramNotifier {
                 this.sendScreenshot(base64Data);
             });
 
-      fs.writeFileSync("merged", merged)
     } else {
       this.sendMessage(`no slots`);
     }
